@@ -89,10 +89,10 @@ begin
    Put_Line("TEST 6 - Delta Compression (Constant Color)");
    Put_Line("  6.1 Assert differential on constant image yields 0s");
    declare
-      Delta : constant Delta_Sequence := Compress_Delta(Img_Const);
+      Delta_Seq : constant Delta_Sequence := Compress_Delta(Img_Const);
    begin
-      Assert (Delta'Length = 2, "Should have 2 deltas for 3 pixels");
-      Assert (Delta(1).dR = 0, "Delta R should be 0");
+      Assert (Delta_Seq'Length = 2, "Should have 2 deltas for 3 pixels");
+      Assert (Delta_Seq(1).dR = 0, "Delta R should be 0");
       Put_Line("     PASS");
    end;
 
@@ -101,15 +101,15 @@ begin
    Put_Line("  7.1 Assert maximum negative/positive differentials parse correctly");
    declare
       Grad : Image_1D(1 .. 2) := (P_Black, P_White); -- 0 to 255
-      Delta : constant Delta_Sequence := Compress_Delta(Grad);
+      Delta_Seq : constant Delta_Sequence := Compress_Delta(Grad);
    begin
-      Assert (Delta(1).dR = 255, "Positive Delta failed");
+      Assert (Delta_Seq(1).dR = 255, "Positive Delta failed");
       
       declare
          Grad2 : Image_1D(1 .. 2) := (P_White, P_Black); -- 255 to 0
-         Delta2 : constant Delta_Sequence := Compress_Delta(Grad2);
+         Delta_Seq2 : constant Delta_Sequence := Compress_Delta(Grad2);
       begin
-         Assert (Delta2(1).dR = -255, "Negative Delta failed");
+         Assert (Delta_Seq2(1).dR = -255, "Negative Delta failed");
       end;
       Put_Line("     PASS");
    end;
@@ -119,7 +119,7 @@ begin
    Put_Line("  8.1 Assert compression of empty array raises Empty_Image_Error");
    begin
       declare
-         Delta : Delta_Sequence := Compress_Delta(Img_Empty);
+         Delta_Seq : Delta_Sequence := Compress_Delta(Img_Empty);
       begin
          Assert (False, "Expected error on empty delta");
       end;
@@ -131,8 +131,8 @@ begin
    Put_Line("TEST 9 - Delta Decompression (Roundtrip Verification)");
    Put_Line("  9.1 Assert decompressed delta recovers exact original state");
    declare
-      Delta : constant Delta_Sequence := Compress_Delta(Img_Mix);
-      Dec   : constant Image_1D := Decompress_Delta(Delta, Img_Mix(Img_Mix'First));
+      Delta_Seq : constant Delta_Sequence := Compress_Delta(Img_Mix);
+      Dec       : constant Image_1D := Decompress_Delta(Delta_Seq, Img_Mix(Img_Mix'First));
    begin
       Assert (Dec'Length = Img_Mix'Length, "Delta length mismatch");
       Assert (Dec(4) = P_Black, "Last pixel not correctly recovered");
