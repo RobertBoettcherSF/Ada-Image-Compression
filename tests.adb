@@ -49,7 +49,8 @@ begin
    Put_Line("  3.1 Assert empty image raises Empty_Image_Error");
    begin
       declare
-         RLE : RLE_Sequence := Compress_RLE(Img_Empty);
+         RLE : constant RLE_Sequence := Compress_RLE(Img_Empty);
+         pragma Unreferenced (RLE); -- Suppress warning for variable used only to trigger error
       begin
          Assert (False, "Expected Empty_Image_Error not raised");
       end;
@@ -76,8 +77,9 @@ begin
    Put_Line("  5.1 Assert decompressing empty sequence raises error");
    begin
       declare
-         Empty_RLE : RLE_Sequence(1 .. 0);
-         Res : Image_1D := Decompress_RLE(Empty_RLE);
+         Empty_RLE : constant RLE_Sequence(1 .. 0) := (others => <>);
+         Res : constant Image_1D := Decompress_RLE(Empty_RLE);
+         pragma Unreferenced (Res); -- Suppress warning
       begin
          Assert (False, "Expected Invalid_Data_Error");
       end;
@@ -100,13 +102,13 @@ begin
    Put_Line("TEST 7 - Delta Compression (High variance gradient)");
    Put_Line("  7.1 Assert maximum negative/positive differentials parse correctly");
    declare
-      Grad : Image_1D(1 .. 2) := (P_Black, P_White); -- 0 to 255
+      Grad : constant Image_1D(1 .. 2) := (P_Black, P_White); -- 0 to 255
       Delta_Seq : constant Delta_Sequence := Compress_Delta(Grad);
    begin
       Assert (Delta_Seq(1).dR = 255, "Positive Delta failed");
       
       declare
-         Grad2 : Image_1D(1 .. 2) := (P_White, P_Black); -- 255 to 0
+         Grad2 : constant Image_1D(1 .. 2) := (P_White, P_Black); -- 255 to 0
          Delta_Seq2 : constant Delta_Sequence := Compress_Delta(Grad2);
       begin
          Assert (Delta_Seq2(1).dR = -255, "Negative Delta failed");
@@ -119,7 +121,8 @@ begin
    Put_Line("  8.1 Assert compression of empty array raises Empty_Image_Error");
    begin
       declare
-         Delta_Seq : Delta_Sequence := Compress_Delta(Img_Empty);
+         Delta_Seq : constant Delta_Sequence := Compress_Delta(Img_Empty);
+         pragma Unreferenced (Delta_Seq); -- Suppress warning
       begin
          Assert (False, "Expected error on empty delta");
       end;
@@ -188,12 +191,9 @@ begin
    -- ---------------------------------------------------------
    Put_Line("TEST 14 - Robustness Test (Type Bounds Safety)");
    Put_Line("  14.1 Assert algorithm prevents overflow on negative deltas");
-   declare
-      -- Ensures Color_Diff properly houses wide swings without crash
-      Max_Diff : Color_Diff := -255;
-      Min_Diff : Color_Diff := 255;
    begin
-      Assert (Max_Diff = -255 and Min_Diff = 255, "Data type bounded incorrectly");
+      -- Test the bounds logic of the custom Type itself instead of evaluating tautological variables
+      Assert (Color_Diff'First = -255 and Color_Diff'Last = 255, "Data type bounded incorrectly");
       Put_Line("     PASS");
    end;
 
